@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>سورة الكهف — أصوات متعددة (بدون database)</title>
+  <style>
+    :root{--bg:#f7f8fb;--card:#fff;--accent:#0b5ed7}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Naskh Arabic',"Helvetica Neue",Arial;
+         margin:0;background:var(--bg);color:#111}
+    header{background:linear-gradient(90deg,var(--accent),#2a9df4);color:white;padding:22px 16px}
+    .wrap{max-width:900px;margin:18px auto;padding:16px}
+    h1{margin:0 0 8px;font-size:20px}
+    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 20px rgba(13,38,76,0.08);}
+    label{display:block;margin-bottom:8px;font-weight:600}
+    select,input[type=text]{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ef}
+    .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+    audio{width:100%;margin-top:10px}
+    .reciter-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .reciter-btn{padding:8px 10px;border-radius:10px;border:1px solid #e6e9ef;background:#fff;cursor:pointer}
+    .reciter-btn.active{border-color:var(--accent);box-shadow:0 4px 14px rgba(11,94,215,0.12)}
+    footer{font-size:13px;color:#555;margin-top:14px}
+    .small{font-size:13px;color:#666}
+    @media(min-width:720px){h1{font-size:24px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>سورة الكهف — صفحة صوتية</h1>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <label for="reciterSelect">اختر قارئًا (من القائمة أو اضف رابط مباشر)</label>
+      <div style="display:flex;gap:8px;flex-direction:column">
+        <select id="reciterSelect" aria-label="اختيار القارئ"></select>
+        <div style="display:flex;gap:8px">
+          <input id="customUrl" type="text" placeholder="الصق رابط mp3 مباشر هنا (مثال: https://...)" />
+          <button id="addUrlBtn" class="reciter-btn">أضف للرابط</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="playBtn" class="reciter-btn">تشغيل</button>
+        <button id="pauseBtn" class="reciter-btn">إيقاف مؤقت</button>
+        <button id="stopBtn" class="reciter-btn">إيقاف</button>
+      </div>
+
+      <audio id="player" controls preload="none">
+        المتصفح لا يدعم عنصر الصوت.
+      </audio>
+
+      <div class="reciter-list" id="reciterList" aria-hidden="false"></div>
+
+   
+  </main>
+
+  <script>
+    // قائمة مبدئية من القراء — قيم "src" يمكن أن تكون روابط مباشرة أو مسارات داخل الريبو مثل "audio/filename.mp3"
+        const initialReciters = [
+          { name: 'أحمد كاسب', src: 'audio/Ahmed_Kaseb.mp3' },
+          { name: ' عبد الباسط عبد الصمد', src: 'audio/abdulbasit.mp3' },
+          { name: ' علي جابر', src: 'audio/Aligaber.mp3' },
+          { name: ' محمد صديق المنشاوي', src: 'audio/Elmenshawi.mp3' },
+          { name: ' عمر بن ضياء الدين', src: 'audio/suratkahf.mp3' },
+          { name: ' ياسر الدوسري', src: 'audio/yasser.mp3' }
+        ];
+
+    const reciterSelect = document.getElementById('reciterSelect');
+    const reciterList = document.getElementById('reciterList');
+    const player = document.getElementById('player');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const customUrl = document.getElementById('customUrl');
+    const addUrlBtn = document.getElementById('addUrlBtn');
+
+    // حالة بسيطة مخزنة في الذاكرة خلال الجلسة (no DB)
+    let reciters = [...initialReciters];
+
+    function populateSelect() {
+      reciterSelect.innerHTML = '';
+      reciters.forEach((r, idx) => {
+        const opt = document.createElement('option');
+        opt.value = r.src;
+        opt.textContent = r.name;
+        reciterSelect.appendChild(opt);
+      });
+      renderReciterButtons();
+      setPlayerSource(reciters[0].src);
+    }
+
+    function renderReciterButtons() {
+      reciterList.innerHTML = '';
+      reciters.forEach((r, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'reciter-btn';
+        btn.textContent = r.name;
+        btn.onclick = () => {
+          reciterSelect.selectedIndex = idx;
+          setPlayerSource(r.src);
+          highlightActive(idx);
+          player.play().catch(()=>{});
+        };
+        reciterList.appendChild(btn);
+      });
+      highlightActive(0);
+    }
+
+    function highlightActive(activeIdx){
+      const btns = reciterList.querySelectorAll('.reciter-btn');
+      btns.forEach((b,i)=> b.classList.toggle('active', i===activeIdx));
+    }
+
+    function setPlayerSource(src){
+      // امنع تحميل ملفات غير متاحة بصمت — ضع رسالة اذا فشل
+      player.pause();
+      player.src = src;
+      player.load();
+    }
+
+    reciterSelect.addEventListener('change', ()=>{
+      setPlayerSource(reciterSelect.value);
+    });
+
+    playBtn.addEventListener('click', ()=> player.play().catch(err=> console.warn(err)));
+    pauseBtn.addEventListener('click', ()=> player.pause());
+    stopBtn.addEventListener('click', ()=> { player.pause(); player.currentTime=0; });
+
+    addUrlBtn.addEventListener('click', ()=>{
+      const url = customUrl.value.trim();
+      if(!url) return alert('أدخل رابط mp3 مباشر أولًا');
+      const name = prompt('اسم القارئ (حتى يظهر في القائمة):', url.split('/').pop() || 'قارئ جديد');
+      const newItem = { name: name || 'قارئ جديد', src: url };
+      reciters.push(newItem);
+      populateSelect();
+      // حدد الخيار المضاف حديثًا
+      reciterSelect.selectedIndex = reciters.length - 1;
+      setPlayerSource(url);
+      player.play().catch(()=>{});
+      customUrl.value = '';
+    });
+
+    // تهيئة عند فتح الصفحة
+    populateSelect();
+
+    // ملاحظة: لا نقوم بأي حفظ على الخادم — كل شيء في الذاكرة أو ملفات ثابتة في الريبو
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azkar Mini App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      background: #ffffff;
+      color: #000000;
+      font-size: 18px; /* default text size for Chrome */
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .btn {
+      display: block;
+      margin: 15px auto;
+      width: 80%;
+      max-width: 250px;
+      padding: 12px;
+      font-size: 30px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-morning {
+      background: #ffcc66;
+    }
+    .btn-evening {
+      background: #6699cc;
+      color: white;
+    }
+    .btn-kahf {
+      background: #3498db;
+      color: #fff;
+    }
+    .btn:hover {
+      opacity: 0.8;
+    }
+
+    /* Smaller text/buttons only when inside Telegram Mini App */
+    .telegram-mini {
+      font-size: 25px !important;
+    }
+    .telegram-mini .btn {
+      font-size: 25px !important;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>أذكار الصباح و المساء</h1>
+
+  <!-- Buttons for Morning & Evening -->
+  <button class="btn btn-morning" onclick="window.location.href='morning.html'" style="font-size: 30px;">🌅 أذكار الصباح </button>
+  <button class="btn btn-evening" onclick="window.location.href='evening.html'"style="font-size: 30px;">🌙أذكار المساء</button>
+  <button class="btn btn-kahf" onclick="window.location.href='kahf.html'" style="font-size: 30px;">📖 سورة الكهف</button>
+
+  <!-- Detect Telegram Mini App -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    if (tg) {
+      // Add class to body when inside Telegram Mini App
+      document.body.classList.add("telegram-mini");
+    }
+  </script>
+  <h2>صدقة جارية عن الحاج مختار أبو اليزيد عمار</h2>
+  <h3>لا تنسوه من صالح دعائكم</h3>
+</body>
+</html>
